@@ -1,0 +1,8 @@
+- insert:
+    - id: dsh-server-edition-bundle
+      name: '@dsh-server-edition/plugin-bundle'
+      config:
+        failClosed: true
+        persistenceProvider: mysql
+        runtimeCoordination: redis
+        projectFiles: local-agent-only

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "dsh-server-edition",
+  "version": "0.2.0",
+  "description": "Local Agent First server bundle for DSH Server Edition",
+  "dshCompatibility": {
+    "min": "0.1.0-rc.5",
+    "verification": "required-at-install",
+    "requiredCapabilities": ["sessionPersistence", "pluginManager", "remoteOrToolProvider", "httpMiddleware"]
+  },
+  "securityDefaults": {
+    "failClosed": true,
+    "serverFilesystem": "deny",
+    "serverShell": "deny",
+    "projectFiles": "local-agent-only",
+    "credentials": "reference-only",
+    "tenantKey": "required"
+  },
+  "components": [
+    {
+      "id": "dsh-gateway-auth",
+      "kind": "runtime-plugin",
+      "entry": "components/gateway-auth.js",
+      "dependsOn": ["dsh-restricted-profile"],
+      "scope": "server-control-plane"
+    },
+    {
+      "id": "dsh-device-workspace",
+      "kind": "runtime-plugin",
+      "entry": "components/device-workspace.js",
+      "dependsOn": ["dsh-gateway-auth"],
+      "scope": "server-control-plane"
+    },
+    {
+      "id": "dsh-restricted-profile",
+      "kind": "runtime-plugin",
+      "entry": "components/restricted-profile.js",
+      "dependsOn": [],
+      "scope": "server-policy"
+    },
+    {
+      "id": "dsh-local-tool-provider",
+      "kind": "runtime-plugin",
+      "entry": "components/local-tool-provider.js",
+      "dependsOn": ["dsh-gateway-auth", "dsh-device-workspace", "dsh-restricted-profile"],
+      "scope": "local-agent-bridge"
+    },
+    {
+      "id": "dsh-runtime-manager",
+      "kind": "runtime-plugin",
+      "entry": "components/runtime-manager.js",
+      "dependsOn": ["dsh-gateway-auth"],
+      "scope": "cluster-coordination"
+    },
+    {
+      "id": "dsh-persistence-spi",
+      "kind": "runtime-plugin",
+      "entry": "components/persistence-spi.js",
+      "dependsOn": ["dsh-gateway-auth"],
+      "scope": "persistence-contract"
+    },
+    {
+      "id": "dsh-persistence-mysql",
+      "kind": "runtime-plugin",
+      "entry": "components/persistence-mysql.js",
+      "dependsOn": ["dsh-persistence-spi"],
+      "scope": "persistence-backend"
+    },
+    {
+      "id": "dsh-model-policy",
+      "kind": "runtime-plugin",
+      "entry": "components/model-policy.js",
+      "dependsOn": ["dsh-gateway-auth"],
+      "scope": "model-policy"
+    },
+    {
+      "id": "dsh-plugin-registry",
+      "kind": "runtime-plugin",
+      "entry": "components/plugin-registry.js",
+      "dependsOn": ["dsh-gateway-auth", "dsh-audit-otel"],
+      "scope": "plugin-governance"
+    },
+    {
+      "id": "dsh-audit-otel",
+      "kind": "runtime-plugin",
+      "entry": "components/audit-otel.js",
+      "dependsOn": ["dsh-gateway-auth"],
+      "scope": "audit-observability"
+    },
+    {
+      "id": "dsh-control-plane-web",
+      "kind": "runtime-plugin",
+      "entry": "components/control-plane-web.js",
+      "dependsOn": ["dsh-gateway-auth", "dsh-runtime-manager", "dsh-persistence-mysql"],
+      "scope": "server-control-plane-ui"
+    },
+    {
+      "id": "dsh-persistence-migrate",
+      "kind": "operations",
+      "entry": "tools/migrate.mjs",
+      "dependsOn": ["dsh-persistence-mysql"],
+      "scope": "migration-operations"
+    }
+  ],
+  "lifecycle": {
+    "install": ["preflight", "install-bundle", "schema-plan", "health-check"],
+    "uninstall": ["drain", "disable-bundle", "remove-bundle", "keep-data-by-default"],
+    "purgeData": "explicit-only",
+    "rollback": "restore-profile-manifest-and-disable-bundle"
+  }
+}

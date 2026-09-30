@@ -1,0 +1,8 @@
+{
+  "bundleId": "dsh-server-edition",
+  "version": "0.2.0",
+  "packageName": "@dsh-server-edition/plugin-bundle",
+  "profile": "web",
+  "installedAt": "2026-09-24T10:16:55.483Z",
+  "dataPolicy": "keep-by-default"
+}

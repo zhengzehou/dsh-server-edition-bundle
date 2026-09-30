@@ -1,0 +1,19 @@
+- id: dsh-server-edition-bundle
+  config:
+    infrastructure:
+      auth:
+        enabled: true
+        loginApiUrl: http://127.0.0.1:19081/login
+        method: POST
+        requestEncoding: json
+        usernameField: username
+        passwordField: password
+        headers:
+          Content-Type: application/json
+        staticFields: {}
+        successPath: code
+        successValue: '0'
+        userIdPath: data.userId
+        displayNamePath: data.displayName
+        rolesPath: data.roles
+        messagePath: message
